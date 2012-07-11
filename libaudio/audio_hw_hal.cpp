@@ -92,16 +92,16 @@ static audio_format_t out_get_format(const struct audio_stream *stream)
 {
     const struct qcom_stream_out *out =
         reinterpret_cast<const struct qcom_stream_out *>(stream);
-    return out->qcom_out->format();
+    return (audio_format_t) out->qcom_out->format();
 }
 
-static audio_format_t out_set_format(struct audio_stream *stream, int format)
+static int out_set_format(struct audio_stream *stream, audio_format_t format)
 {
     struct qcom_stream_out *out =
         reinterpret_cast<struct qcom_stream_out *>(stream);
     ALOGE("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
     /* TODO: implement me */
-    return 0;
+    return (audio_format_t) 0;
 }
 
 static int out_standby(struct audio_stream *stream)
@@ -208,14 +208,14 @@ static uint32_t in_get_channels(const struct audio_stream *stream)
     return in->qcom_in->channels();
 }
 
-static int in_get_format(const struct audio_stream *stream)
+static audio_format_t in_get_format(const struct audio_stream *stream)
 {
     const struct qcom_stream_in *in =
         reinterpret_cast<const struct qcom_stream_in *>(stream);
     return in->qcom_in->format();
 }
 
-static int in_set_format(struct audio_stream *stream, int format)
+static int in_set_format(struct audio_stream *stream, audio_format_t format)
 {
     struct qcom_stream_in *in =
         reinterpret_cast<struct qcom_stream_in *>(stream);
@@ -349,7 +349,7 @@ static int adev_set_master_volume(struct audio_hw_device *dev, float volume)
     return qadev->hwif->setMasterVolume(volume);
 }
 
-static int adev_set_mode(struct audio_hw_device *dev, int mode)
+static int adev_set_mode(struct audio_hw_device *dev, audio_format_t mode)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
     return qadev->hwif->setMode(mode);
@@ -382,10 +382,14 @@ static char * adev_get_parameters(const struct audio_hw_device *dev,
     s8 = qadev->hwif->getParameters(String8(keys));
     return strdup(s8.string());
 }
+struct audio_config {
+    uint32_t sample_rate;
+    audio_channel_mask_t channel_mask;
+    audio_format_t  format;
+};
 
 static size_t adev_get_input_buffer_size(const struct audio_hw_device *dev,
-                                         uint32_t sample_rate, int format,
-                                         int channel_count)
+                                         const struct audio_config *config)
 {
     const struct qcom_audio_device *qadev = to_cladev(dev);
     return qadev->hwif->getInputBufferSize(sample_rate, format, channel_count);
@@ -483,8 +487,8 @@ static int adev_open_input_stream(struct audio_hw_device *dev,
     in->stream.common.set_sample_rate = in_set_sample_rate;
     in->stream.common.get_buffer_size = in_get_buffer_size;
     in->stream.common.get_channels = in_get_channels;
-    in->stream.common.get_format = in_get_format;
-    in->stream.common.set_format = in_set_format;
+    in->stream.common.get_format =  in_get_format;
+    in->stream.common.set_format =  in_set_format;
     in->stream.common.standby = in_standby;
     in->stream.common.dump = in_dump;
     in->stream.common.set_parameters = in_set_parameters;
@@ -567,7 +571,7 @@ static int qcom_adev_open(const hw_module_t* module, const char* name,
     qadev->device.set_parameters = adev_set_parameters;
     qadev->device.get_parameters = adev_get_parameters;
     qadev->device.get_input_buffer_size = adev_get_input_buffer_size;
-    qadev->device.open_output_stream = adev_open_output_stream;
+    qadev->device.open_output_stream =  adev_open_output_stream;
     qadev->device.close_output_stream = adev_close_output_stream;
     qadev->device.open_input_stream = adev_open_input_stream;
     qadev->device.close_input_stream = adev_close_input_stream;
