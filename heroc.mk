@@ -103,12 +103,13 @@ PRODUCT_PACKAGES += \
     libstagefrighthw \
     libOmxCore \
     libmm-omxcore \
-    com.android.future.usb.accessory
+    com.android.future.usb.accessory 
 
 PRODUCT_PACKAGES += \
     Superuser \
-    Superuser.apk \
-    su
+    libsqlite \
+    Superuser.apk #\
+#    su
 
 
 # HeroC uses mdpi artwork where available

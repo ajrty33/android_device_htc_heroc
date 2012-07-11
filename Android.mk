@@ -25,7 +25,7 @@ subdir_makefiles := \
 	$(LOCAL_PATH)/librpc/Android.mk \
 	$(LOCAL_PATH)/libstagefrighthw/Android.mk \
 	$(LOCAL_PATH)/libomxcore/Android.mk \
-	$(LOCAL_PATH)/recovery/Android.mk
-#        $(LOCAL_PATH)/libaudio/Android.mk \
+	$(LOCAL_PATH)/recovery/Android.mk 
+#        $(LOCAL_PATH)/libaudio/Android.mk 
 
 include $(subdir_makefiles)

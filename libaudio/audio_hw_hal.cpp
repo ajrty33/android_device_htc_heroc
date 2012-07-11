@@ -88,14 +88,14 @@ static uint32_t out_get_channels(const struct audio_stream *stream)
 #endif
 }
 
-static int out_get_format(const struct audio_stream *stream)
+static audio_format_t out_get_format(const struct audio_stream *stream)
 {
     const struct qcom_stream_out *out =
         reinterpret_cast<const struct qcom_stream_out *>(stream);
     return out->qcom_out->format();
 }
 
-static int out_set_format(struct audio_stream *stream, int format)
+static audio_format_t out_set_format(struct audio_stream *stream, int format)
 {
     struct qcom_stream_out *out =
         reinterpret_cast<struct qcom_stream_out *>(stream);
