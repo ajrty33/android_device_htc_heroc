@@ -38,6 +38,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 PRODUCT_COPY_FILES += \
     device/htc/heroc/prebuilt/init.heroc.rc:root/init.heroc.rc \
+    device/htc/heroc/prebuilt/fstab.heroc:root/fstab.heroc \
     device/htc/heroc/prebuilt/ueventd.heroc.rc:root/ueventd.heroc.rc
 
 # Permissions for HeroC
@@ -108,8 +109,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     Superuser \
     libsqlite \
-    Superuser.apk #\
-#    su
+    Superuser.apk \
+    su
 
 
 # HeroC uses mdpi artwork where available
