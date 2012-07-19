@@ -39,7 +39,7 @@ public:
                                                           AudioSystem::device_connection_state state,
                                                           const char *device_address);
 
-        virtual uint32_t getDeviceForStrategy(routing_strategy strategy, bool fromCache = true);
+        virtual uint32_t getDeviceForStrategy(routing_strategy strategy, bool fromCache);
         virtual void setForceUse(AudioSystem::force_use usage, AudioSystem::forced_config config);
 protected:
         // true is current platform implements a back microphone
