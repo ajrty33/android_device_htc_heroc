@@ -212,7 +212,7 @@ static audio_format_t in_get_format(const struct audio_stream *stream)
 {
     const struct qcom_stream_in *in =
         reinterpret_cast<const struct qcom_stream_in *>(stream);
-    return in->qcom_in->format();
+    return (audio_format_t) in->qcom_in->format();
 }
 
 static int in_set_format(struct audio_stream *stream, audio_format_t format)
@@ -349,10 +349,10 @@ static int adev_set_master_volume(struct audio_hw_device *dev, float volume)
     return qadev->hwif->setMasterVolume(volume);
 }
 
-static int adev_set_mode(struct audio_hw_device *dev, audio_format_t mode)
+static int adev_set_mode(struct audio_hw_device *dev, audio_mode_t mode)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
-    return qadev->hwif->setMode(mode);
+    return qadev->hwif->setMode((int) mode);
 }
 
 static int adev_set_mic_mute(struct audio_hw_device *dev, bool state)
@@ -382,24 +382,20 @@ static char * adev_get_parameters(const struct audio_hw_device *dev,
     s8 = qadev->hwif->getParameters(String8(keys));
     return strdup(s8.string());
 }
-struct audio_config {
-    uint32_t sample_rate;
-    audio_channel_mask_t channel_mask;
-    audio_format_t  format;
-};
+
 
 static size_t adev_get_input_buffer_size(const struct audio_hw_device *dev,
                                          const struct audio_config *config)
 {
     const struct qcom_audio_device *qadev = to_cladev(dev);
-    return qadev->hwif->getInputBufferSize(sample_rate, format, channel_count);
+    return qadev->hwif->getInputBufferSize(config->sample_rate, (int) config->format,  popcount(config->channel_mask));
 }
 
 static int adev_open_output_stream(struct audio_hw_device *dev,
-                                   uint32_t devices,
-                                   int *format,
-                                   uint32_t *channels,
-                                   uint32_t *sample_rate,
+                                   audio_io_handle_t handle,
+                                   audio_devices_t devices,
+                                   audio_output_flags_t flags,
+                                   struct audio_config *config,
                                    struct audio_stream_out **stream_out)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
@@ -411,8 +407,9 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
     if (!out)
         return -ENOMEM;
 
-    out->qcom_out = qadev->hwif->openOutputStream(devices, format, channels,
-                                                    sample_rate, &status);
+    out->qcom_out = qadev->hwif->openOutputStream(devices, (int *) &config->format,
+                                                    &config->channel_mask,
+                                                    &config->sample_rate, &status);
 
 #ifdef USES_AUDIO_LEGACY
     *channels = *channels >> 2;
@@ -461,9 +458,9 @@ static void adev_close_output_stream(struct audio_hw_device *dev,
 
 /** This method creates and opens the audio hardware input stream */
 static int adev_open_input_stream(struct audio_hw_device *dev,
-                                  uint32_t devices, int *format,
-                                  uint32_t *channels, uint32_t *sample_rate,
-                                  audio_in_acoustics_t acoustics,
+                                  audio_io_handle_t handle,
+                                  audio_devices_t devices,
+                                  struct audio_config *config,
                                   struct audio_stream_in **stream_in)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
@@ -475,9 +472,9 @@ static int adev_open_input_stream(struct audio_hw_device *dev,
     if (!in)
         return -ENOMEM;
 
-    in->qcom_in = qadev->hwif->openInputStream(devices, format, channels,
-                                    sample_rate, &status,
-                                    (AudioSystem::audio_in_acoustics)acoustics);
+    in->qcom_in = qadev->hwif->openInputStream(devices, (int *) &config->format,
+                                               &config->channel_mask, &config->sample_rate,
+                                               &status, (AudioSystem::audio_in_acoustics)0);
     if (!in->qcom_in) {
         ret = status;
         goto err_open;
@@ -507,6 +504,7 @@ err_open:
     *stream_in = NULL;
     return ret;
 }
+
 
 static void adev_close_input_stream(struct audio_hw_device *dev,
                                struct audio_stream_in *stream)
