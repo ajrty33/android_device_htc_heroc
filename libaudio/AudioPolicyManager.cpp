@@ -152,8 +152,20 @@ void AudioPolicyManager::setPhoneState(int state)
     }
 }
 
+void AudioPolicyManager::handleNotificationRoutingForStream(AudioSystem::stream_type stream) {
+    switch(stream) {
+    case AudioSystem::MUSIC:
+        checkOutputForStrategy(STRATEGY_SONIFICATION_RESPECTFUL);
+        updateDeviceForStrategy();
+        break;
+    default:
+        break;
+    }
+}
 
-audio_devices_t AudioPolicyManagerBase::getDeviceForStrategy(routing_strategy strategy, bool fromCache)
+
+
+audio_devices_t AudioPolicyManager::getDeviceForStrategy(routing_strategy strategy, bool fromCache)
 {
     uint32_t device = 0;
 
