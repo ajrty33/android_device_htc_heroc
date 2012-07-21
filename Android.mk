@@ -26,6 +26,7 @@ subdir_makefiles := \
 	$(LOCAL_PATH)/libgralloc/Android.mk \
 	$(LOCAL_PATH)/librpc/Android.mk \
 	$(LOCAL_PATH)/libstagefrighthw/Android.mk 
+#	$(LOCAL_PATH)/libcamera/Android.mk 
 #	$(LOCAL_PATH)/recovery/Android.mk 
 
 
